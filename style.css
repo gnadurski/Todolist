@@ -1,0 +1,41 @@
+body{
+    background-color:gray;
+}
+container{
+    width:1500px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+}
+header{
+ width:500px;
+ margin-top: 30px;
+ margin-left:auto;
+ margin-right:auto;
+ text-align:center;
+ border: 1px solid black;
+}
+#field{
+    width:500px;
+    margin-top:30px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:left;
+    border: 1px solid black;
+}
+input[type=text]{
+    width:448px;
+    text-align:left;
+}
+button[type=submit]{
+    width:45px;
+}
+.task{
+    width:500px;
+    min-height:25px;
+    margin-top:30px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    border:1px solid black;
+}
