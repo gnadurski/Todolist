@@ -2,11 +2,11 @@ function add(){
     let parent = document.getElementById("container")
     let task = document.createElement("div")
     let description = document.getElementById("input").value
-    let buttonRemove = document.createElement("button")
+    let buttonRemove = document.createElement("input")
 
-    task.innerHTML = description 
+    task.innerHTML = description + " "
     task.classList.add("task")
-    buttonRemove.innerHTML = "x"
+    buttonRemove.type = "checkbox"
     buttonRemove.addEventListener("click", remove) 
 
     parent.appendChild(task)
@@ -15,5 +15,5 @@ function add(){
 function remove(){
     let parent = document.getElementById("container")
     let child = event.target.parentElement
-    parent.removeChild(child)
+    setTimeout(() => {parent.removeChild(child)}, 1000)
 }
