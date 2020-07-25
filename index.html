@@ -13,9 +13,18 @@
         <header>
             Your personal to do list!
         </header>
-        <div id="field">
+        <nav>
+            <div id="menuNew" onclick = "showPending()" class = "active">Pending tasks</div><div id="menuCompleted" onclick=showCompleted()>View completed tasks</div>
+        </nav>
+        <div id="field" style="clear: both;">
             <input type="text" placeholder="New task" id="input">
-            <button type="submit" onclick=add()>+</button>
+            <button type="submit" onclick="add()">+</button>
+        </div>
+        <div id="pendingTasks">
+            
+        </div>
+        <div id="completedTasks" class="hidden">
+
         </div>
     </div>
 </body>
