@@ -80,3 +80,6 @@ nav{
 .active{
     background-color: green;
 }
+.number{
+    display: none;
+}
