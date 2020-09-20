@@ -92,7 +92,28 @@ function load(){
     let loadedCompletedIsNumber = 0
     let i = 0
     let j = 0
-    if (typeof(Storage) !== "undefined") {
+    fetch('http://localhost:8080/api/tasks')
+        .then(response => response.json())
+        .then(tasks => {
+            for(let i = 0; i < tasks.length; i++){
+                let task = tasks[i]
+                let taskElement = document.createElement("div")
+                taskElement.innerHTML = task.zadanie
+                taskElement.classList.add("task")
+                button = document.createElement("button")
+                button.innerHTML = "x"
+                taskElement.appendChild(button)
+                if (task.completed){
+                    button.addEventListener("click", uncomplete)
+                    box.appendChild(taskElement)
+
+                } else {
+                    button.addEventListener("click", remove)
+                    parent.appendChild(taskElement)
+                }
+            }
+        })
+    /*if (typeof(Storage) !== "undefined") {
 
         //
 
@@ -129,7 +150,7 @@ function load(){
 
     } else {
         // No web storage Support.
-    }
+    }*/
 }
 function clearButton(){
     window.localStorage.clear()
