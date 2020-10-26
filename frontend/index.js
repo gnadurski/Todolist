@@ -1,56 +1,83 @@
-let lastTaskIsNumber = 0
-let completedCount = 0
+//let lastTaskIsNumber = 3
+//let completedCount = 0
 
-if(window.localStorage.getItem("pendingCount") === null){
-    window.localStorage.setItem("pendingCount", 0)
+window.onload = load
+
+async function postData(url = '', data = {}) {
+    // Default options are marked with *
+    const response = await fetch(url, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+}
+async function putData(url = '', data = {}) {
+    // Default options are marked with *
+    const response = await fetch(url, {
+        method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
 }
 
-function add(){
-    let parent = document.getElementById("pendingTasks")
-    let task = document.createElement("div")
-    let description = document.getElementById("input").value
-    let buttonRemove = document.createElement("input")
-    let hiddenNumber = document.createElement("div")
-    let pendings = parseInt(window.localStorage.getItem("pendingCount")) + 1
+function add() {
 
-    hiddenNumber.innerHTML = lastTaskIsNumber
-    hiddenNumber.classList.add("number")
+    postData('http://localhost:8080/api/tasks', { "zadanie": document.getElementById("input").value.toString(), "completed": false })
+        .then(data => {
+            console.log(data)
+        })
 
-    task.innerHTML = description + " "
-    task.classList.add("task")
-
-    //buttonRemove is a button (or checkbox) that removes task
-    buttonRemove.type = "checkbox"
-    buttonRemove.addEventListener("click", remove) 
-
-    parent.appendChild(task)
-    task.appendChild(buttonRemove)
-    task.appendChild(hiddenNumber)
-
-    window.localStorage.setItem('t' + lastTaskIsNumber, task.innerHTML)
-    lastTaskIsNumber = lastTaskIsNumber + 1
-    window.localStorage.setItem("pendingCount", pendings)
+    load()
 }
-function remove(event){
+
+function remove(event) {
     let parent = document.getElementById("pendingTasks")
     let child = event.target.parentElement
     let box = document.getElementById("completedTasks")
     let button = event.target
+    let thisTask = JSON.parse(child.dataset.data)
+    let newTask = {...thisTask, completed: true}
     button.removeEventListener("click", remove)
-    button.addEventListener("click", uncomplete)
-    
-    window.localStorage.removeItem("t" + child.innerHTML.slice(-7, -6))
+    button.addEventListener("click", uncomplete) // a moze bym zrobil to inaczej - ifa sprawdzajacego, czy completed jest true czy nie i nadajacemu odpowiednia funkcje
 
-    window.localStorage.setItem("c" + completedCount, child.innerHTML)
-    completedCount = completedCount + 1
-    window.localStorage.setItem("completedCount", completedCount)
-    box.appendChild(child)
-    window.localStorage.setItem("pendingCount", window.localStorage.getItem("pendingCount") - 1)
+    //completedCount = completedCount + 1
 
-    //$(child).hide("slow");
-    //setTimeout(() => {parent.removeChild(child)}, 1000) //if it stays like this it will probably be possible to add the same task to completed multiple times by spam clicking
+    putData('http://localhost:8080/api/tasks', newTask)
+    load()
 }
-function showCompleted(){
+function uncomplete(event) {
+    let parent = document.getElementById("completedTasks")
+    let child = event.target.parentElement
+    let box = document.getElementById("pendingTasks")
+    let button = event.target
+    let thisTask = JSON.parse(child.dataset.data)
+    let newTask = {...thisTask, completed: false}
+    button.removeEventListener("click", uncomplete)
+    button.addEventListener("click", remove) // tu tak samo
+
+    putData('http://localhost:8080/api/tasks', newTask)
+    load()
+    //box.appendChild(child)
+}
+function showCompleted() {
     let old = document.getElementById("pendingTasks")
     let young = document.getElementById("completedTasks")
     let menuOld = document.getElementById("menuNew")
@@ -62,7 +89,7 @@ function showCompleted(){
     menuYoung.classList.add("active")
 
 }
-function showPending(){
+function showPending() {
     let old = document.getElementById("completedTasks")
     let young = document.getElementById("pendingTasks")
     let menuOld = document.getElementById("menuCompleted")
@@ -74,36 +101,25 @@ function showPending(){
     menuYoung.classList.add("active")
 
 }
-function uncomplete(event){
-    let parent = document.getElementById("completedTasks")
-    let child = event.target.parentElement
-    let box = document.getElementById("pendingTasks")
-    let button = event.target
-    button.removeEventListener("click", uncomplete)
-    button.addEventListener("click", remove)
 
-    box.appendChild(child)
-}
-function load(){
+function load() {
     let parent = document.getElementById("pendingTasks")
     let box = document.getElementById("completedTasks")
-    let task
-    let loadedTaskIsNumber = 0
-    let loadedCompletedIsNumber = 0
-    let i = 0
-    let j = 0
+    parent.innerHTML = ""
+    box.innerHTML = ""
     fetch('http://localhost:8080/api/tasks')
         .then(response => response.json())
         .then(tasks => {
-            for(let i = 0; i < tasks.length; i++){
+            for (let i = 0; i < tasks.length; i++) {
                 let task = tasks[i]
                 let taskElement = document.createElement("div")
                 taskElement.innerHTML = task.zadanie
+                taskElement.dataset.data = JSON.stringify(task)
                 taskElement.classList.add("task")
                 button = document.createElement("button")
                 button.innerHTML = "x"
                 taskElement.appendChild(button)
-                if (task.completed){
+                if (task.completed) {
                     button.addEventListener("click", uncomplete)
                     box.appendChild(taskElement)
 
@@ -152,7 +168,7 @@ function load(){
         // No web storage Support.
     }*/
 }
-function clearButton(){
+function clearButton() {
     window.localStorage.clear()
     window.localStorage.setItem("pendingCount", 0)
 }
